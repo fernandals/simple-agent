@@ -28,7 +28,7 @@ class LogCluster:
 
     Attributes:
         log_template: A list of tokens forming the template for this cluster,
-            where variable parts are replaced by the wildcard ``<*>``.
+            where variable parts are replaced by the wildcard <*>.
         log_ids: A list of line IDs (1-based) of all log messages assigned
             to this cluster.
     """
@@ -38,29 +38,29 @@ class LogCluster:
         log_template: Optional[list[str]] = None,
         log_ids: Optional[list[int]] = None,
     ) -> None:
-        self.log_template: list[str] = log_template if log_template is not None else []
-        self.log_ids: list[int] = log_ids if log_ids is not None else []
+        self.log_template = log_template if log_template is not None else []
+        self.log_ids = log_ids if log_ids is not None else []
 
 
 class PrefixTreeNode:
     """A node in the prefix tree (trie) used by the Drain algorithm.
 
     The tree is structured as follows:
-    - **Root** (depth 0): children are keyed by sequence length.
-    - **Length layer** (depth 1): children are keyed by the first tokens of
-      the log sequence up to ``LogParser.depth``.
-    - **Token layers** (depth 2 … depth): children are keyed by individual
-      tokens or the wildcard ``<*>``.
-    - **Leaf nodes**: ``children`` holds a list of :class:`LogCluster`
+    - Root (depth 0): children are keyed by sequence length.
+    - Length layer (depth 1): children are keyed by the first tokens of
+      the log sequence up to LogParser.depth.
+    - Token layers (depth 2 … depth): children are keyed by individual
+      tokens or the wildcard <*>.
+    - Leaf nodes: children holds a list of LogCluster
       objects instead of a dict.
 
     Attributes:
-        children: Either a ``dict`` mapping a token / length to the next
-            :class:`PrefixTreeNode`, or a ``list`` of :class:`LogCluster`
-            objects at leaf level.
+        children: Either a dict mapping a token / length to the next
+            PrefixTreeNode, or a list of LogCluster objects at leaf 
+            level.
         depth: Depth of this node in the tree (root = 0).
         token: The token or sequence-length value that labels the edge
-            leading to this node (``None`` for the root).
+            leading to this node (None for the root).
     """
 
     def __init__(
@@ -69,9 +69,9 @@ class PrefixTreeNode:
         depth: int = 0,
         token: Optional[str | int] = None,
     ) -> None:
-        self.children: dict | list = children if children is not None else {}
-        self.depth: int = depth
-        self.token: Optional[str | int] = token
+        self.children = children if children is not None else {}
+        self.depth = depth
+        self.token = token
 
 
 class LogParser:
@@ -83,22 +83,22 @@ class LogParser:
 
     Parameters:
         log_format: A format string that describes the structure of each raw
-            log line, e.g. ``"<Date> <Time> <Level> <Content>"``.  Field
-            names must be wrapped in ``<…>``.
+            log line, e.g. "<Date> <Time> <Level> <Content>".  Field names 
+            must be wrapped in <…>.
         input_dir: Directory that contains the raw log file(s).
         output_dir: Directory where structured CSV results will be written.
         tree_depth: Depth of the prefix tree (including the root and length
-            layer).  The effective token-matching depth is ``tree_depth - 2``.
-        sim_threshold: Minimum cosine-like similarity score in ``[0, 1]``
+            layer).  The effective token-matching depth is tree_depth - 2.
+        sim_threshold: Minimum cosine-like similarity score in [0, 1]
             required to merge a log message into an existing cluster.
         max_children: Maximum number of children per internal tree node.
-            When the limit is reached, a wildcard ``<*>`` child is created
+            When the limit is reached, a wildcard <*> child is created
             instead.
         preprocessor_patterns: A list of regular-expression strings applied
-            to each log message *before* parsing.  Every match is replaced
-            with ``<*>``.
-        keep_parameters: If ``True``, a ``ParameterList`` column containing
-            the extracted variable values is appended to the structured CSV.
+            to each log message before parsing.  Every match is replaced
+            with <*>.
+        keep_parameters: If True, a ParameterList column containing the 
+            extracted variable values is appended to the structured CSV.
     """
 
     def __init__(
@@ -112,25 +112,25 @@ class LogParser:
         preprocessor_patterns: Optional[list[str]] = None,
         keep_parameters: bool = True,
     ) -> None:
-        self.input_dir: str = input_dir
-        self.tree_depth: int = tree_depth - 2
-        self.sim_threshold: float = sim_threshold
-        self.max_children: int = max_children
-        self.log_filename: Optional[str] = None
-        self.output_dir: str = output_dir
-        self.df_log: Optional[pd.DataFrame] = None
-        self.log_format: str = log_format
-        self.preprocessor_patterns: list[str] = (
+        self.input_dir= input_dir
+        self.tree_depth = tree_depth - 2
+        self.sim_threshold = sim_threshold
+        self.max_children = max_children
+        self.log_filename = None
+        self.output_dir = output_dir
+        self.df_log = None
+        self.log_format = log_format
+        self.preprocessor_patterns = (
             preprocessor_patterns if preprocessor_patterns is not None else []
         )
-        self.keep_parameters: bool = keep_parameters
+        self.keep_parameters = keep_parameters
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
 
     def _has_digits(self, token: str) -> bool:
-        """Return ``True`` if *token* contains at least one digit character."""
+        """Return True if token contains at least one digit character."""
         return any(char.isdigit() for char in token)
 
     # ------------------------------------------------------------------
@@ -142,16 +142,16 @@ class LogParser:
     ) -> Optional[LogCluster]:
         """Search the prefix tree for the best-matching cluster.
 
-        Traverses the tree guided by *token_sequence* and delegates to
-        :meth:`_fast_match` at the leaf level.
+        Traverses the tree guided by token_sequence and delegates to
+        _fast_match at the leaf level.
 
         Parameters:
             root: Root node of the prefix tree.
             token_sequence: Tokenised, pre-processed log message.
 
         Returns:
-            The best-matching :class:`LogCluster` if similarity exceeds
-            :attr:`sim_threshold`, otherwise ``None``.
+            The best-matching LogCluster if similarity exceeds
+            sim_threshold, otherwise None.
         """
         seq_len = len(token_sequence)
         if seq_len not in root.children:
@@ -179,11 +179,11 @@ class LogParser:
     def _add_cluster_to_tree(
         self, root: PrefixTreeNode, cluster: LogCluster
     ) -> None:
-        """Insert *cluster* into the prefix tree rooted at *root*.
+        """Insert cluster into the prefix tree rooted at root.
 
-        Creates intermediate :class:`PrefixTreeNode` objects as needed,
-        respecting :attr:`max_children` and replacing numeric tokens with
-        the ``<*>`` wildcard.
+        Creates intermediate PrefixTreeNode objects as needed,
+        respecting max_children and replacing numeric tokens with
+        the <*> wildcard.
 
         Parameters:
             root: Root node of the prefix tree.
@@ -254,13 +254,12 @@ class LogParser:
 
         Parameters:
             template: Token list for the existing cluster template.
-                Wildcards are represented as ``<*>``.
+                Wildcards are represented as <*>.
             sequence: Token list of the incoming log message.
 
         Returns:
-            A tuple ``(similarity, wildcard_count)`` where *similarity* is
-            in ``[0, 1]`` and *wildcard_count* is the number of ``<*>``
-            placeholders in *template*.
+            A tuple (similarity, wildcard_count) where similarity is in [0, 1] 
+            and wildcard_count is the number of <*> placeholders in template.
         """
         assert len(template) == len(sequence)
 
@@ -282,19 +281,18 @@ class LogParser:
     ) -> Optional[LogCluster]:
         """Select the best-matching cluster from a leaf's cluster list.
 
-        Among all clusters whose similarity to *sequence* meets
-        :attr:`sim_threshold`, the one with the highest similarity is
-        returned; ties are broken by preferring the cluster with more
-        wildcard positions.
+        Among all clusters whose similarity to sequence meets sim_threshold,
+        the one with the highest similarity is returned; ties are broken by
+        preferring the cluster with more wildcard positions.
 
         Parameters:
-            clusters: List of :class:`LogCluster` objects stored at a
-                prefix-tree leaf node.
+            clusters: List of LogCluster objects stored at a prefix-tree leaf 
+                node.
             sequence: Tokenised log message to match.
 
         Returns:
-            The best-matching :class:`LogCluster`, or ``None`` if no
-            cluster exceeds the threshold.
+            The best-matching LogCluster, or None if no cluster exceeds the 
+                threshold.
         """
         best_cluster = None
         best_similarity = -1.0
@@ -318,10 +316,10 @@ class LogParser:
     def _merge_templates(
         self, new_sequence: list[str], existing_template: list[str]
     ) -> list[str]:
-        """Produce an updated template by merging *new_sequence* into *existing_template*.
+        """Produce an updated template by merging new_sequence into existing_template.
 
         Token positions where the two sequences differ are replaced with
-        the wildcard ``<*>``.
+        the wildcard <*>.
 
         Parameters:
             new_sequence: Tokenised log message.
@@ -349,14 +347,13 @@ class LogParser:
         """Persist parsing results to disk as two CSV files.
 
         Writes:
-        - ``<log_filename>_structured.csv`` — original log data enriched with
-          ``EventId``, ``EventTemplate``, and optionally ``ParameterList``
-          columns.
-        - ``<log_filename>_templates.csv`` — deduplicated event templates with
+        - <log_filename>_structured.csv — original log data enriched with
+          EventId, EventTemplate, and optionally ParameterList columns.
+        - <log_filename>_templates.csv — deduplicated event templates with
           their IDs and occurrence counts.
 
         Parameters:
-            clusters: All :class:`LogCluster` objects produced by the parse.
+            clusters: All LogCluster objects produced by the parse.
         """
         log_templates = [0] * self.df_log.shape[0]
         log_template_ids = [0] * self.df_log.shape[0]
@@ -428,16 +425,15 @@ class LogParser:
     # ------------------------------------------------------------------
 
     def parse(self, log_filename: str) -> None:
-        """Parse a single log file and write structured output to :attr:`output_dir`.
+        """Parse a single log file and write structured output to output_dir.
 
         The method loads the file, iterates over every log line, searches
         the prefix tree for a matching cluster, and either creates a new
         cluster or updates the best-matching one.  Results are written via
-        :meth:`_write_results` upon completion.
+        _write_results upon completion.
 
         Parameters:
-            log_filename: Name of the log file located inside
-                :attr:`input_dir`.
+            log_filename: Name of the log file located inside input_dir.
         """
         log_path = os.path.join(self.input_dir, log_filename)
         print(f"Parsing file: {log_path}")
@@ -483,10 +479,10 @@ class LogParser:
     # ------------------------------------------------------------------
 
     def _load_data(self) -> None:
-        """Load and parse the raw log file into :attr:`df_log`.
+        """Load and parse the raw log file into df_log.
 
-        Delegates format detection to :meth:`_build_format_regex` and line
-        parsing to :meth:`_log_to_dataframe`.
+        Delegates format detection to _build_format_regex and line
+        parsing to _log_to_dataframe.
         """
         headers, regex = self._build_format_regex(self.log_format)
         self.df_log = self._log_to_dataframe(
@@ -496,13 +492,13 @@ class LogParser:
         )
 
     def _preprocess(self, line: str) -> str:
-        """Apply all :attr:`preprocessor_patterns` to *line*.
+        """Apply all preprocessor_patterns to line.
 
-        Each regex match is replaced with ``<*>`` so that variable parts
+        Each regex match is replaced with <*> so that variable parts
         (e.g. IP addresses, timestamps) do not fragment cluster templates.
 
         Parameters:
-            line: A single raw log message (``Content`` field).
+            line: A single raw log message (Content field).
 
         Returns:
             The pre-processed log message.
@@ -517,18 +513,18 @@ class LogParser:
         regex: re.Pattern,
         headers: list[str],
     ) -> pd.DataFrame:
-        """Read *log_file* and return its contents as a :class:`~pandas.DataFrame`.
+        """Read log_file and return its contents as a pandas.DataFrame.
 
-        Lines that do not match *regex* are skipped with a warning.
+        Lines that do not match regex are skipped with a warning.
 
         Parameters:
             log_file: Absolute path to the raw log file.
             regex: Compiled regular expression with named groups corresponding
-                to *headers*.
+                to headers.
             headers: Ordered list of field names to extract from each line.
 
         Returns:
-            A DataFrame with a ``LineId`` column (1-based) followed by one
+            A DataFrame with a LineId column (1-based) followed by one
             column per header.
         """
         log_messages: list[list[str]] = []
@@ -552,18 +548,18 @@ class LogParser:
     def _build_format_regex(
         self, log_format: str
     ) -> tuple[list[str], re.Pattern]:
-        """Convert a human-readable *log_format* string into a compiled regex.
+        """Convert a human-readable log_format string into a compiled regex.
 
-        Format fields wrapped in ``<…>`` become named capture groups; literal
-        text between fields is converted to ``\\s+`` patterns.
+        Format fields wrapped in <…> become named capture groups; literal
+        text between fields is converted to \\s+ patterns.
 
         Parameters:
             log_format: Format descriptor such as
-                ``"<Date> <Time> <Level> <Content>"``.
+                "<Date> <Time> <Level> <Content>".
 
         Returns:
-            A tuple ``(headers, pattern)`` where *headers* is the ordered
-            list of field names and *pattern* is the compiled regex.
+            A tuple (headers, pattern) where headers is the ordered
+            list of field names and pattern is the compiled regex.
         """
         headers: list[str] = []
         splitters = re.split(r"(<[^<>]+>)", log_format)
@@ -585,13 +581,13 @@ class LogParser:
     def _extract_parameters(self, row: pd.Series) -> list[str]:
         """Extract the variable values captured by a log template.
 
-        Builds a regex from the event template by replacing ``<*>``
+        Builds a regex from the event template by replacing <*>
         wildcards with capture groups and matches it against the raw
-        ``Content`` field.
+        Content field.
 
         Parameters:
-            row: A single row of :attr:`df_log` containing at least
-                ``EventTemplate`` and ``Content`` columns.
+            row: A single row of df_log containing at least
+                EventTemplate and Content columns.
 
         Returns:
             A list of extracted parameter strings (may be empty if the

@@ -1,17 +1,9 @@
 desc:
 
-AssertionError: Property modelName not found in attributes from section 'ASSET'.
+Exception 500 error: accessed JArray with invalid key "AccountId"; Int32 array index expected.
 
-error log
 
- java.lang.AssertionError: Property modelName not found in attributes from section 'ASSET
-	at com.intellij.rt.testng.RemoteTestNGStarter.main(RemoteTestNGStarter.java:105) 
+error log:
 
-desc:
-
-HTTP 404 Not Found error: requested route 'chubbylittlechinchillaapi.r1.pcf.dell.com' does not exist.
-
-error log
-
- java.lang.Exception: {ENVIRONMENT} Error: 404() / Payload: 404 Not Found: Requested route ('chubbylittlechinchillaapi.r1.pcf.dell.com') does not exist.
-at com.intellij.rt.testng.RemoteTestNGStarter.main(RemoteTestNGStarter.java:105) 
+ java.lang.Exception: {ENVIRONMENT} Error: 500() / Payload: "{ENVIRONMENT} Accessed JArray values with invalid key value: \"AccountId\". Int32 array index expected."
+	at com.dell.ude.services.BaseService.evaluateResponse(BaseService.java:32) 

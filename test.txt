@@ -1,18 +1,17 @@
-Description 
+desc:
 
-NoSuchElementException – unable to locate element with XPath //h1//div//records-entity-label[text()='Work Order'].
-
-error log
-
-org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"xpath","selector":"//h1//div//records-entity-label[text()='Work Order']"}
-  (Session info: chrome=144.0.7559.132) 
-
-description
-
-SessionNotCreatedException – ChromeDriver version mismatch; driver supports Chrome 142 but browser version is 145.
+AssertionError: Property modelName not found in attributes from section 'ASSET'.
 
 error log
 
- org.openqa.selenium.SessionNotCreatedException: session not created: This version of ChromeDriver only supports Chrome version 142
-Current browser version is 145.0.7632.77 with binary path C:\Program Files\Google\Chrome\Application\chrome.exe 
+ java.lang.AssertionError: Property modelName not found in attributes from section 'ASSET
+	at com.intellij.rt.testng.RemoteTestNGStarter.main(RemoteTestNGStarter.java:105) 
 
+desc:
+
+HTTP 404 Not Found error: requested route 'chubbylittlechinchillaapi.r1.pcf.dell.com' does not exist.
+
+error log
+
+ java.lang.Exception: {ENVIRONMENT} Error: 404() / Payload: 404 Not Found: Requested route ('chubbylittlechinchillaapi.r1.pcf.dell.com') does not exist.
+at com.intellij.rt.testng.RemoteTestNGStarter.main(RemoteTestNGStarter.java:105) 
